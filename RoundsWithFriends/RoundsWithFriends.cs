@@ -1,22 +1,22 @@
 ﻿using BepInEx;
+using ExitGames.Client.Photon;
 using Photon.Pun;
+using Photon.Pun.UtilityScripts;
+using RWF.UI;
 using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using TMPro;
 using UnboundLib;
 using UnboundLib.GameModes;
 using UnboundLib.Networking;
+using UnboundLib.Utils.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Photon.Pun.UtilityScripts;
-using ExitGames.Client.Photon;
-using RWF.UI;
-using On;
-using UnboundLib.Utils.UI;
 
 namespace RWF
 {
@@ -453,6 +453,27 @@ namespace RWF
             deathmatchButton.onClick.AddListener(characterSelectPage.Open);
             deathmatchButton.onClick.AddListener(() => GameModeManager.SetGameMode("Deathmatch"));
             deathmatchButton.onClick.AddListener(() => KeybindHints.CreateLocalHints());
+
+            int gamemodeIdx = 2;
+            List<string> gameModes = GameModeManager.GameModes.Keys.Except(new List<string>() {"Deathmatch", "Team Deathmatch", "ArmsRace", "Sandbox"}).ToList();
+            foreach (string gameModeID in gameModes)
+            {
+                var gamemodeButtonGo = GameObject.Instantiate(versusGo, versusGo.transform.parent);
+                gamemodeButtonGo.transform.localScale = Vector3.one;
+                gamemodeButtonGo.transform.SetSiblingIndex(gamemodeIdx);
+
+                var gamemodeButtonText = gamemodeButtonGo.GetComponentInChildren<TextMeshProUGUI>();
+                gamemodeButtonText.text = gameModeID.ToUpper();
+
+                GameObject.DestroyImmediate(gamemodeButtonGo.GetComponent<Button>());
+                var gamemodeButton = gamemodeButtonGo.AddComponent<Button>();
+
+                gamemodeButton.onClick.AddListener(characterSelectPage.Open);
+                gamemodeButton.onClick.AddListener(() => GameModeManager.SetGameMode(gameModeID));
+                gamemodeButton.onClick.AddListener(() => KeybindHints.CreateLocalHints());
+
+                gamemodeIdx++;
+            }
 
             UnityEngine.GameObject.Destroy(versusGo);
 
